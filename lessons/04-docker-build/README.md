@@ -1,0 +1,51 @@
+# Lesson 4: Build and push a Docker image
+
+The final step. Once both frontend and backend tests pass, build a Docker image of the full application and push it to GitHub Container Registry (GHCR).
+
+## What you'll learn
+
+- Chaining workflows with `workflow_run`
+- Gating a workflow on multiple upstream workflows
+- Building Docker images in GitHub Actions
+- Authenticating with and pushing to GHCR
+
+## Before you start
+
+You need both test workflows from lessons 1 and 3 (`test-frontend.yml` and `test-backend.yml`) already in `.github/workflows/`. This workflow triggers when either of them finishes.
+
+For public repos this works out of the box. For private repos you may need to tweak package visibility in your repo settings.
+
+## Setup
+
+Copy the workflow file:
+
+```bash
+mkdir -p .github/workflows
+cp lessons/04-docker-build/docker.yml .github/workflows/docker.yml
+```
+
+## How it works
+
+This workflow listens for both "Frontend Tests" and "Backend Tests" via `workflow_run`. That means it triggers whenever *either* test workflow completes on `main`.
+
+Since we want to build only after *both* suites pass, there's a **check** job that runs first. It uses the GitHub CLI to look up whether both test workflows have a successful run for the same commit SHA. If one suite hasn't finished (or failed), the check job exits early and the build is skipped. When the other test suite completes, `workflow_run` fires again, this time both are green, and the build proceeds.
+
+The **build** job then logs into GHCR using the built-in `GITHUB_TOKEN`, builds the Docker image, and pushes it to `ghcr.io/<your-username>/<your-repo>`.
+
+For a simpler alternative that avoids this two-step check, see lesson 5, where both test jobs and the build live in a single file connected with `needs`.
+
+## Try it
+
+1. Make sure both test workflows from lessons 1 and 3 are in place
+2. Copy this workflow file
+3. Push to `main`
+4. Check the Actions tab. You'll see both test workflows run, then this one triggers (potentially twice) and builds only when both have passed.
+5. Once it's done, check the **Packages** section of your repo
+6. Pull and run it:
+
+```bash
+docker pull ghcr.io/<your-username>/<your-repo>:main
+docker run -p 5000:5000 ghcr.io/<your-username>/<your-repo>:main
+```
+
+Then open http://localhost:5000. You'll have the full app with the score API.

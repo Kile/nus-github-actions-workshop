@@ -1,0 +1,106 @@
+# Full CI/CD pipeline in a single workflow file.
+# Triggers on pushes to main and on pull requests targeting main.
+#
+# What it does:
+#   1. Runs frontend (JS) and backend (Python) tests in parallel.
+#   2. If both test jobs pass AND this is a push to main:
+#      - Deploys the static game to GitHub Pages.
+#      - Builds a Docker image and pushes it to GitHub Container Registry.
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  packages: write
+
+jobs:
+  # ── Tests ──────────────────────────────────────────────────────
+
+  test-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run frontend tests
+        run: node --test tests/test_logic.js
+
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: pytest -v
+
+  # ── Deploy to GitHub Pages ─────────────────────────────────────
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: [test-frontend, test-backend]
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/static
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ── Build & push Docker image ─────────────────────────────────
+
+  build:
+    if: github.event_name == 'push'
+    needs: [test-frontend, test-backend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}

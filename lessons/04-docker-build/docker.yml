@@ -1,0 +1,70 @@
+# Triggered when either "Frontend Tests" or "Backend Tests" completes on main.
+# Verifies that both test suites passed on the same commit before building.
+
+name: Docker Build & Push
+
+on:
+  workflow_run:
+    workflows: ["Frontend Tests", "Backend Tests"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  check:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+
+    outputs:
+      ready: ${{ steps.verify.outputs.ready }}
+
+    steps:
+      - name: Verify both test suites passed on this commit
+        id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          for WORKFLOW in "Frontend Tests" "Backend Tests"; do
+            COUNT=$(gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow "$WORKFLOW" \
+              --branch main \
+              --json headSha,conclusion \
+              --jq "[.[] | select(.headSha == \"$SHA\" and .conclusion == \"success\")] | length")
+            if [ "$COUNT" -eq 0 ]; then
+              echo "$WORKFLOW has not passed on $SHA yet, skipping"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "Both test suites passed on $SHA"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}

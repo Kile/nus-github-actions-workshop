@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octocat Commit Catcher</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="info.html" class="resources-link">Resources</a>
+        <h1>Octocat Commit Catcher</h1>
+        <p class="subtitle">A GitHub Actions workshop at NUS</p>
+    </header>
+
+    <main>
+        <div class="game-wrap">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <aside class="sidebar">
+            <div class="panel">
+                <h3>Items</h3>
+                <div class="legend-row"><span class="dot" style="background:#238636"></span> Commit <span class="legend-pts">+10</span></div>
+                <div class="legend-row"><span class="dot" style="background:#58a6ff"></span> Pull Request <span class="legend-pts">+25</span></div>
+                <div class="legend-row"><span class="dot" style="background:#e3b341"></span> Star <span class="legend-pts">+50</span></div>
+                <div class="legend-row"><span class="dot" style="background:#f85149"></span> Bug <span class="legend-pts">&minus;1 &#9829;</span></div>
+            </div>
+
+            <div class="panel">
+                <h3>High Scores</h3>
+                <ol id="high-scores"></ol>
+                <p class="muted" id="no-scores">No scores yet. Play a round!</p>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        <p>Built for <img src="img/campus-expert-logo.png" alt="GitHub Campus Expert" class="footer-flag"> <strong>GitHub Education</strong> workshops</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="logic.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
