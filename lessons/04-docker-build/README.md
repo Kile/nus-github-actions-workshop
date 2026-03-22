@@ -26,9 +26,9 @@ cp lessons/04-docker-build/docker.yml .github/workflows/docker.yml
 
 ## How it works
 
-This workflow listens for both "Frontend Tests" and "Backend Tests" via `workflow_run`. That means it triggers whenever *either* test workflow completes on `main`.
+This workflow listens for "Backend Tests" via `workflow_run`. Backend tests are typically slower (due to pip install), so by the time they finish, the frontend tests have usually completed too.
 
-Since we want to build only after *both* suites pass, there's a **check** job that runs first. It uses the GitHub CLI to look up whether both test workflows have a successful run for the same commit SHA. If one suite hasn't finished (or failed), the check job exits early and the build is skipped. When the other test suite completes, `workflow_run` fires again, this time both are green, and the build proceeds.
+A **check** job runs first. It uses the GitHub CLI to verify that both test workflows have a successful run for the same commit SHA. If the frontend tests haven't finished yet (or failed), the check job exits early and the build is skipped.
 
 The **build** job then logs into GHCR using the built-in `GITHUB_TOKEN`, builds the Docker image, and pushes it to `ghcr.io/<your-username>/<your-repo>`.
 

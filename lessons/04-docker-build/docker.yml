@@ -1,11 +1,13 @@
-# Triggered when either "Frontend Tests" or "Backend Tests" completes on main.
-# Verifies that both test suites passed on the same commit before building.
+# Triggered when "Backend Tests" completes on main or starter.
+# Also verifies that the frontend tests passed on the same commit.
+# We only listen for backend tests since they are typically slower,
+# so by the time this triggers, frontend tests have usually finished too.
 
 name: Docker Build & Push
 
 on:
   workflow_run:
-    workflows: ["Frontend Tests", "Backend Tests"]
+    workflows: ["Backend Tests"]
     types: [completed]
     branches: [main, starter]
 
@@ -27,11 +29,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SHA="${{ github.event.workflow_run.head_sha }}"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
           for WORKFLOW in "Frontend Tests" "Backend Tests"; do
             COUNT=$(gh run list \
               --repo "${{ github.repository }}" \
               --workflow "$WORKFLOW" \
-              --branch main \
+              --branch "$BRANCH" \
               --json headSha,conclusion \
               --jq "[.[] | select(.headSha == \"$SHA\" and .conclusion == \"success\")] | length")
             if [ "$COUNT" -eq 0 ]; then
