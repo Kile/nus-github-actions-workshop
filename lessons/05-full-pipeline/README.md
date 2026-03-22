@@ -24,7 +24,7 @@ The workflow has four jobs:
 
 The two test jobs run in parallel. Both `deploy` and `build` use `needs: [test-frontend, test-backend]`, so they only run after both test jobs pass.
 
-The deploy and build jobs also have `if: github.event_name == 'push'`, which means they are skipped on pull requests. PRs only run the tests. Merging to `main` runs everything.
+The deploy and build jobs also have `if: github.event_name == 'push'`, which means they are skipped on pull requests. PRs only run the tests. Merging to your branch runs everything.
 
 ## Separate files vs. one file
 

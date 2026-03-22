@@ -1,9 +1,9 @@
 # Full CI/CD pipeline in a single workflow file.
-# Triggers on pushes to main and on pull requests targeting main.
+# Triggers on pushes and pull requests to main or starter.
 #
 # What it does:
 #   1. Runs frontend (JS) and backend (Python) tests in parallel.
-#   2. If both test jobs pass AND this is a push to main:
+#   2. If both test jobs pass AND this is a push (not a PR):
 #      - Deploys the static game to GitHub Pages.
 #      - Builds a Docker image and pushes it to GitHub Container Registry.
 

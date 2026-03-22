@@ -1,4 +1,4 @@
-# Triggered automatically when the "Frontend Tests" workflow completes on main.
+# Triggered automatically when the "Frontend Tests" workflow completes.
 # Only deploys if the tests succeeded.
 
 name: Deploy to GitHub Pages

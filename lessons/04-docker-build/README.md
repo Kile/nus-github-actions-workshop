@@ -38,14 +38,14 @@ For a simpler alternative that avoids this two-step check, see lesson 5, where b
 
 1. Make sure both test workflows from lessons 1 and 3 are in place
 2. Copy this workflow file
-3. Push to `main`
+3. Push to your branch
 4. Check the Actions tab. You'll see both test workflows run, then this one triggers (potentially twice) and builds only when both have passed.
 5. Once it's done, check the **Packages** section of your repo
 6. Pull and run it:
 
 ```bash
-docker pull ghcr.io/<your-username>/<your-repo>:main
-docker run -p 5000:5000 ghcr.io/<your-username>/<your-repo>:main
+docker pull ghcr.io/<your-username>/<your-repo>:starter
+docker run -p 5000:5000 ghcr.io/<your-username>/<your-repo>:starter
 ```
 
 Then open http://localhost:5000. You'll have the full app with the score API.
