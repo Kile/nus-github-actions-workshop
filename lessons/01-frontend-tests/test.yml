@@ -1,5 +1,5 @@
-# Runs the frontend (JavaScript) tests on every push to main
-# and on every pull request targeting main.
+# Runs the frontend (JavaScript) tests on every push to main or starter
+# and on every pull request targeting those branches.
 
 name: Frontend Tests
 

@@ -31,7 +31,7 @@ cp lessons/02-github-pages/deploy.yml .github/workflows/deploy-pages.yml
 
 ## How it works
 
-This workflow uses `workflow_run` to listen for the "Frontend Tests" workflow. When that workflow completes on `main`, this one kicks in. The `if: github.event.workflow_run.conclusion == 'success'` line makes sure it only deploys if the tests actually passed.
+This workflow uses `workflow_run` to listen for the "Frontend Tests" workflow. When that workflow completes, this one kicks in. The `if: github.event.workflow_run.conclusion == 'success'` line makes sure it only deploys if the tests actually passed.
 
 The deploy job uploads everything in `app/static/` as a Pages artifact and publishes it. The game works fully as a static site: Canvas rendering, localStorage high scores, everything. No server needed.
 
@@ -40,6 +40,6 @@ The deploy job uploads everything in `app/static/` as a Pages artifact and publi
 1. Make sure lesson 1's workflow is in place
 2. Enable Pages in your repo settings (see above)
 3. Copy this workflow file
-4. Push to `main`
+4. Push to your branch
 5. Check the Actions tab. You'll see the test workflow run first, then this one triggers automatically.
 6. Once it's green, your game is live at `https://<your-username>.github.io/<your-repo>/`
