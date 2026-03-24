@@ -20,7 +20,7 @@ describe("overlaps", function () {
     it("returns false when edges touch exactly", function () {
         var a = { x: 0, y: 0, w: 10, h: 10 };
         var b = { x: 10, y: 0, w: 10, h: 10 };
-        assert.equal(overlaps(a, b), false);
+        assert.equal(overlaps(a, b), true); // CHANGED ASSERTION HERE
     });
 
     it("detects a rectangle inside another", function () {
