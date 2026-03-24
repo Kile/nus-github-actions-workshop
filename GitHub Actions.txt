@@ -1,0 +1,5 @@
+GitHub Actions
+
+need a .github/workflows/*.yml file
+always need an "on"
+can specify which branches the jobs run on, and on which actions
